@@ -1,1 +1,4 @@
-aW1wb3J0IHsgcmVuZGVyIH0gZnJvbSAicHJlYWN0IjsKaW1wb3J0IHsgQXBwIH0gZnJvbSAiLi9jb21wb25lbnRzL0FwcCI7CmltcG9ydCAiLi9zdHlsZXMuY3NzIjsKcmVuZGVyKDxBcHAgLz4sIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJhcHAiKSEpOwo=
+import { render } from "preact";
+import { App } from "./components/App";
+import "./styles.css";
+render(<App />, document.getElementById("app")!);

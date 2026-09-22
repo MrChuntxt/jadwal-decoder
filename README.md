@@ -1,1 +1,44 @@
-IyBKYWR3YWwgRGVjb2RlcgoKUHVibGljIEd1bmFkYXJtYSBzY2hlZHVsZSBkZWNvZGVyOiBHaXRIdWIgUGFnZXMgZnJvbnRlbmQgKyBDbG91ZGZsYXJlIFdvcmtlciBPQ1IgQVBJLgoKIyMgQ29zdCBkZXNpZ24KCi0gKipHaXRIdWIgUGFnZXM6KiogJDAgZm9yIHB1YmxpYyByZXBvc2l0b3JpZXMuCi0gKipDbG91ZGZsYXJlIFdvcmtlcnM6KiogdXNlIHRoZSBGcmVlIHBsYW4uIFJlcXVlc3RzIHN0b3AgYXQgdGhlIGZyZWUtcGxhbiBsaW1pdCBpbnN0ZWFkIG9mIHNpbGVudGx5IGNyZWF0aW5nIHVzYWdlIGNoYXJnZXMgdW5sZXNzIGJpbGxpbmcgaXMgZGVsaWJlcmF0ZWx5IGVuYWJsZWQuCi0gKipXb3JrZXJzIEFJOioqIG9uZSBtdWx0aW1vZGFsIGNhbGwgcGVyIHVwbG9hZGVkIGltYWdlOyBhbGwgZGF0ZS90aW1lL2NvdXJzZS9yb29tIHRyYW5zZm9ybXMgcnVuIGxvY2FsbHkgaW4gdGhlIGJyb3dzZXIuIEtlZXAgdGhlIENsb3VkZmxhcmUgYWNjb3VudCBvbiB0aGUgRnJlZSBwbGFuIHRvIGhhcmQtc3RvcCBhdCB0aGUgaW5jbHVkZWQgZGFpbHkgYWxsb2NhdGlvbi4KLSAqKkxlY3R1cmVyIG1hdGNoaW5nOioqIG5vIEFJIGNhbGw7IHRoZSBXb3JrZXIgZmV0Y2hlcyBhbmQgY2FjaGVzIEd1bmFkYXJtYSdzIHB1YmxpYyBkaXJlY3RvcnkuCgojIyBMb2NhbCBzZXR1cAoKYGBgYmFzaApucG0gaW5zdGFsbApjcCAuZW52LmV4YW1wbGUgLmVudgpucG0gcnVuIGRldgpucG0gdGVzdApucG0gcnVuIGJ1aWxkCmBgYAoKUGFzdGVkIHRhYmxlIHRleHQgd29ya3MgZXZlbiB3aXRob3V0IGFuIE9DUiBiYWNrZW5kLgoKIyMgRGVwbG95IHRoZSBXb3JrZXIgKGZyZWUgdGllcikKCjEuIENyZWF0ZS9sb2dpbiB0byBhIENsb3VkZmxhcmUgYWNjb3VudCBhbmQgaW5zdGFsbCBXcmFuZ2xlciB0aHJvdWdoIHRoaXMgcHJvamVjdCAoYG5wbSBpbnN0YWxsYCBhbHJlYWR5IGRvZXMgaXQpLgoyLiBSdW4gYG5weCB3cmFuZ2xlciBsb2dpbmAuCjMuIENoZWNrIGB3b3JrZXIvd3JhbmdsZXIudG9tbGA7IGBBTExPV0VEX09SSUdJTmAgaXMgcmVzdHJpY3RlZCB0byBgaHR0cHM6Ly9tcmNodW50eHQuZ2l0aHViLmlvYC4KNC4gUnVuIGBucG0gcnVuIHdvcmtlcjpkZXBsb3lgIGFuZCBjb3B5IHRoZSByZXN1bHRpbmcgYHdvcmtlcnMuZGV2YCBVUkwuCgpUaGUgV29ya2VyIHVzZXMgdGhlIFdvcmtlcnMgQUkgYmluZGluZywgc28gbm8gQUkga2V5IGlzIHN0b3JlZCBpbiBHaXRIdWIgb3Igc2VudCB0byBicm93c2Vycy4KCiMjIERlcGxveSBHaXRIdWIgUGFnZXMKCjEuIEluIHRoZSBHaXRIdWIgcmVwb3NpdG9yeSwgb3BlbiAqKlNldHRpbmdzIOKGkiBQYWdlcyoqIGFuZCBjaG9vc2UgKipHaXRIdWIgQWN0aW9ucyoqIGFzIHNvdXJjZS4KMi4gT3BlbiAqKlNldHRpbmdzIOKGkiBTZWNyZXRzIGFuZCB2YXJpYWJsZXMg4oaSIEFjdGlvbnMg4oaSIFZhcmlhYmxlcyoqLgozLiBDcmVhdGUgcmVwb3NpdG9yeSB2YXJpYWJsZSBgVklURV9PQ1JfQVBJX1VSTGAgd2l0aCB0aGUgV29ya2VyIFVSTCwgd2l0aG91dCBhIHRyYWlsaW5nIHNsYXNoLgo0LiBSZS1ydW4gdGhlICoqRGVwbG95IEdpdEh1YiBQYWdlcyoqIHdvcmtmbG93LgoKUHVibGljIFVSTDogYGh0dHBzOi8vbXJjaHVudHh0LmdpdGh1Yi5pby9qYWR3YWwtZGVjb2Rlci9gCgojIyBJbnB1dCBydWxlcwoKSW1hZ2UgdXBsb2FkIGFjY2VwdHMgSlBFRywgUE5HLCBvciBXZWJQIGFuZCByZXNpemVzIGNsaWVudC1zaWRlIGJlZm9yZSB0aGUgc2luZ2xlIE9DUiByZXF1ZXN0LiBQYXN0ZWQgcm93cyBhcmUgcGFyc2VkIGxvY2FsbHkgYW5kIGNhbiBiZSBzZXBhcmF0ZWQgd2l0aCB0YWJzLCBwaXBlcywgc2VtaWNvbG9ucywgb3IgMisgc3BhY2VzLgo=
+# Jadwal Decoder
+
+Public Gunadarma schedule decoder: GitHub Pages frontend + Cloudflare Worker OCR API.
+
+## Cost design
+
+- **GitHub Pages:** $0 for public repositories.
+- **Cloudflare Workers:** use the Free plan. Requests stop at the free-plan limit instead of silently creating usage charges unless billing is deliberately enabled.
+- **Workers AI:** one multimodal call per uploaded image; all date/time/course/room transforms run locally in the browser. Keep the Cloudflare account on the Free plan to hard-stop at the included daily allocation.
+- **Lecturer matching:** no AI call; the Worker fetches and caches Gunadarma's public directory.
+
+## Local setup
+
+```bash
+npm install
+cp .env.example .env
+npm run dev
+npm test
+npm run build
+```
+
+Pasted table text works even without an OCR backend.
+
+## Deploy the Worker (free tier)
+
+1. Create/login to a Cloudflare account and install Wrangler through this project (`npm install` already does it).
+2. Run `npx wrangler login`.
+3. Check `worker/wrangler.toml`; `ALLOWED_ORIGIN` is restricted to `https://mrchuntxt.github.io`.
+4. Run `npm run worker:deploy` and copy the resulting `workers.dev` URL.
+
+The Worker uses the Workers AI binding, so no AI key is stored in GitHub or sent to browsers.
+
+## Deploy GitHub Pages
+
+1. In the GitHub repository, open **Settings → Pages** and choose **GitHub Actions** as source.
+2. Open **Settings → Secrets and variables → Actions → Variables**.
+3. Create repository variable `VITE_OCR_API_URL` with the Worker URL, without a trailing slash.
+4. Re-run the **Deploy GitHub Pages** workflow.
+
+Public URL: `https://mrchuntxt.github.io/jadwal-decoder/`
+
+## Input rules
+
+Image upload accepts JPEG, PNG, or WebP and resizes client-side before the single OCR request. Pasted rows are parsed locally and can be separated with tabs, pipes, semicolons, or 2+ spaces.

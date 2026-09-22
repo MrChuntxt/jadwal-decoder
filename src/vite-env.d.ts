@@ -1,1 +1,3 @@
-Ly8vIDxyZWZlcmVuY2UgdHlwZXM9InZpdGUvY2xpZW50IiAvPgoKZGVjbGFyZSBtb2R1bGUgIioucG5nIiB7IGNvbnN0IHVybDogc3RyaW5nOyBleHBvcnQgZGVmYXVsdCB1cmw7IH0K
+/// <reference types="vite/client" />
+
+declare module "*.png" { const url: string; export default url; }

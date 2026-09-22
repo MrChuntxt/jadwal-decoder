@@ -1,1 +1,9 @@
-bmFtZSA9ICJqYWR3YWwtZGVjb2Rlci1hcGkiCm1haW4gPSAic3JjL2luZGV4LnRzIgpjb21wYXRpYmlsaXR5X2RhdGUgPSAiMjAyNi0wOS0yMiIKClthaV0KYmluZGluZyA9ICJBSSIKClt2YXJzXQpBTExPV0VEX09SSUdJTiA9ICJodHRwczovL21yY2h1bnR4dC5naXRodWIuaW8iCg==
+name = "jadwal-decoder-api"
+main = "src/index.ts"
+compatibility_date = "2026-09-22"
+
+[ai]
+binding = "AI"
+
+[vars]
+ALLOWED_ORIGIN = "https://mrchuntxt.github.io"

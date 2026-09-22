@@ -1,1 +1,9 @@
-aW1wb3J0IHtkZXNjcmliZSxleHBlY3QsaXR9IGZyb20gInZpdGVzdCI7CmltcG9ydCB7Y291cnNlTmFtZSxtZXJnZVRpbWUsbmV4dERhdGUscGFyc2VUZXh0LHJvb219IGZyb20gIi4uL3NyYy9saWIvc2NoZWR1bGUiOwpkZXNjcmliZSgiZGV0ZXJtaW5pc3RpYyBzY2hlZHVsZSB0cmFuc2Zvcm1zIiwoKT0+ewogaXQoImV4cGFuZHMgbWFya2VycyIsKCk9PntleHBlY3QoY291cnNlTmFtZSgiQmFzaXMgRGF0YSoiKSkudG9Db250YWluKCJVamlhbiBVdGFtYSIpO2V4cGVjdChjb3Vyc2VOYW1lKCJBbGdvcml0bWEqKiIpKS50b0NvbnRhaW4oIlByYWt0aWt1bSBQZW51bmphbmciKX0pOwogaXQoIm1lcmdlcyBwZXJpb2RzIiwoKT0+ZXhwZWN0KG1lcmdlVGltZSgiMS8yIikpLnRvQmUoIjA3OjMwLTA5OjMwIikpOwogaXQoImRlY29kZXMgcm9vbXMiLCgpPT5leHBlY3Qocm9vbSgiRzIzNyIpLnRleHQpLnRvQ29udGFpbigiR2VkdW5nIDIsIExhbnRhaSAzLCBSdWFuZyA3IikpOwogaXQoImdldHMgd2Vla2RheSBvbiBvciBhZnRlciBiYXNlIGRheSIsKCk9PmV4cGVjdChuZXh0RGF0ZSgiU2VuaW4iLG5ldyBEYXRlKDIwMjYsOCwyMykpLmlzbykudG9CZSgiMjAyNi0wOS0yOCIpKTsKIGl0KCJwYXJzZXMgdGFidWxhciBpbnB1dCIsKCk9PmV4cGVjdChwYXJzZVRleHQoIktFTEFTXHRIQVJJXHRNQVRBIEtVTElBSFx0V0FLVFVcdFJVQU5HXHRET1NFTlxuMVNDMDNcdFNlbmluXHRCYXNpcyBEYXRhKlx0MS8yXHRHMjM3XHRET1NFTiIpKS50b0hhdmVMZW5ndGgoMSkpOwp9KTsK
+import {describe,expect,it} from "vitest";
+import {courseName,mergeTime,nextDate,parseText,room} from "../src/lib/schedule";
+describe("deterministic schedule transforms",()=>{
+ it("expands markers",()=>{expect(courseName("Basis Data*")).toContain("Ujian Utama");expect(courseName("Algoritma**")).toContain("Praktikum Penunjang")});
+ it("merges periods",()=>expect(mergeTime("1/2")).toBe("07:30-09:30"));
+ it("decodes rooms",()=>expect(room("G237").text).toContain("Gedung 2, Lantai 3, Ruang 7"));
+ it("gets weekday on or after base day",()=>expect(nextDate("Senin",new Date(2026,8,23)).iso).toBe("2026-09-28"));
+ it("parses tabular input",()=>expect(parseText("KELAS\tHARI\tMATA KULIAH\tWAKTU\tRUANG\tDOSEN\n1SC03\tSenin\tBasis Data*\t1/2\tG237\tDOSEN")).toHaveLength(1));
+});

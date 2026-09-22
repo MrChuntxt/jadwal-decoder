@@ -1,1 +1,7 @@
-aW1wb3J0IHsgZGVmaW5lQ29uZmlnIH0gZnJvbSAidml0ZSI7CmltcG9ydCBwcmVhY3QgZnJvbSAiQHByZWFjdC9wcmVzZXQtdml0ZSI7CgpleHBvcnQgZGVmYXVsdCBkZWZpbmVDb25maWcoewogIHBsdWdpbnM6IFtwcmVhY3QoKV0sCiAgYmFzZTogIi9qYWR3YWwtZGVjb2Rlci8iLAp9KTsK
+import { defineConfig } from "vite";
+import preact from "@preact/preset-vite";
+
+export default defineConfig({
+  plugins: [preact()],
+  base: "/jadwal-decoder/",
+});

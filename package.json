@@ -1,1 +1,26 @@
-ewogICJuYW1lIjogImphZHdhbC1kZWNvZGVyIiwKICAicHJpdmF0ZSI6IHRydWUsCiAgInZlcnNpb24iOiAiMS4wLjAiLAogICJ0eXBlIjogIm1vZHVsZSIsCiAgInNjcmlwdHMiOiB7CiAgICAiZGV2IjogInZpdGUiLAogICAgImJ1aWxkIjogInRzYyAtLW5vRW1pdCAmJiB2aXRlIGJ1aWxkIiwKICAgICJ0ZXN0IjogInZpdGVzdCBydW4iLAogICAgIndvcmtlcjpkZXYiOiAid3JhbmdsZXIgZGV2IC0tY29uZmlnIHdvcmtlci93cmFuZ2xlci50b21sIiwKICAgICJ3b3JrZXI6ZGVwbG95IjogIndyYW5nbGVyIGRlcGxveSAtLWNvbmZpZyB3b3JrZXIvd3JhbmdsZXIudG9tbCIsCiAgICAid29ya2VyOmNoZWNrIjogIndyYW5nbGVyIGRlcGxveSAtLWRyeS1ydW4gLS1jb25maWcgd29ya2VyL3dyYW5nbGVyLnRvbWwiCiAgfSwKICAiZGVwZW5kZW5jaWVzIjogewogICAgInByZWFjdCI6ICJeMTAuMjcuMCIKICB9LAogICJkZXZEZXBlbmRlbmNpZXMiOiB7CiAgICAiQGNsb3VkZmxhcmUvd29ya2Vycy10eXBlcyI6ICJeNS4yMDI2MDkyMi4xIiwKICAgICJAcHJlYWN0L3ByZXNldC12aXRlIjogIl4yLjEwLjIiLAogICAgInR5cGVzY3JpcHQiOiAiXjUuOS4yIiwKICAgICJ2aXRlIjogIl43LjEuNyIsCiAgICAidml0ZXN0IjogIl4zLjIuNCIsCiAgICAid3JhbmdsZXIiOiAiXjQuMTM2LjMiLAogICAgIkB0eXBlcy9iYWJlbF9fY29yZSI6ICJeNy4yMC41IgogIH0KfQo=
+{
+  "name": "jadwal-decoder",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "worker:dev": "wrangler dev --config worker/wrangler.toml",
+    "worker:deploy": "wrangler deploy --config worker/wrangler.toml",
+    "worker:check": "wrangler deploy --dry-run --config worker/wrangler.toml"
+  },
+  "dependencies": {
+    "preact": "^10.27.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260922.1",
+    "@preact/preset-vite": "^2.10.2",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.136.3",
+    "@types/babel__core": "^7.20.5"
+  }
+}
