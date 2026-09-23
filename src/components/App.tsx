@@ -66,7 +66,7 @@ export function App(){
  function download(){if(!rows.length)return;const blob=new Blob([exportText(rows)],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jadwal-gunadarma.txt";a.click();URL.revokeObjectURL(url);toast("Text file downloaded.");}
  return <main class="shell">
   <header class="masthead">
-   <div><p class="eyebrow">SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder.</em></h1></div>
+   <div><p class="eyebrow">SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder</em></h1></div>
    {logo&&<div class="mast-right"><img class="gundar-badge" src={logo} alt="Universitas Gunadarma"/></div>}
   </header>
 
@@ -78,9 +78,9 @@ export function App(){
     <small>Resized to recommended size before extraction</small>
    </div>
    <div class="pastebox">
-    <div class="paste-head"><label for="raw-input">Or paste schedule text</label><button class="text-button" onClick={()=>setRawText(SAMPLE)}>Use sample</button></div>
+    <div class="paste-head"><label for="raw-input">Text based</label><button class="text-button" onClick={()=>setRawText(SAMPLE)}>Example</button></div>
     <textarea id="raw-input" value={rawText} onInput={e=>setRawText((e.currentTarget as HTMLTextAreaElement).value)} placeholder={'KELAS   HARI   MATA KULIAH   WAKTU   RUANG   DOSEN\n1SC03   Senin   Sistem Basis Data*   1/2   G237   Nama Dosen'} />
-    <button class="parse-button" disabled={!rawText.trim()||extracting} onClick={parsePasted}><Icon name="spark"/> Parse pasted table <span>No AI</span></button>
+    <button class="parse-button" disabled={!rawText.trim()||extracting} onClick={parsePasted}><Icon name="spark"/> Run the program <span>No AI</span></button>
    </div>
   </section>
 
@@ -110,7 +110,7 @@ export function App(){
    </div>
   </section>}
 
-  {!rows.length&&!extracting&&<section class="empty-note"><span>02</span><p>.</p></section>}
+  {!rows.length&&!extracting&&<section class="empty-note"><span>The result will show here</span><p>.</p></section>}
   <footer class="watermark-footer"><span class="wm">Jundi_SamKok_30626093</span></footer>
   {notice&&<div class="toast" role="status">{notice}</div>}
  </main>;
