@@ -35,6 +35,7 @@ The systems fetches from Gunadarma's public directory.
 Image upload accepts JPEG, PNG, or WebP and resizes client-side before the single OCR request. 
 <img width="923" height="1244" alt="Screenshot_2026-09-23-04-59-40-063_com android chrome" src="https://github.com/user-attachments/assets/42e51a68-0407-484c-afda-0964263ddfc3" />
 Recommended to use this size for easier reading and smaller upload size.
-Video Tutorial
+## Tutorial Video
 https://youtu.be/6r5f5Zryxg4
+
 Pasted rows are parsed locally and can be separated with tabs, pipes, semicolons, or 2+ spaces.
