@@ -15,10 +15,11 @@ export function buildICS(sessions:Session[],opts={weeks:1,alarmMin:30}){
  `SUMMARY:${esc(`${s.course} (${s.kelas})`)}`,`LOCATION:${esc(s.room)}`,`DESCRIPTION:${esc("Dosen: "+s.dosen)}`,
  "BEGIN:VALARM",`TRIGGER:-PT${opts.alarmMin}M`,"ACTION:DISPLAY","DESCRIPTION:Kelas dimulai","END:VALARM","END:VEVENT");}
  L.push("END:VCALENDAR");return L.map(fold).join("\r\n");}
-export async function shareOrDownloadICS(ics:string){
+export function downloadICS(ics:string){const f=new File([ics],"jadwal.ics",{type:"text/calendar"});const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download="jadwal.ics";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+export async function shareOrDownloadICS(ics:string):Promise<boolean>{
  const f=new File([ics],"jadwal.ics",{type:"text/calendar"});
- if(navigator.canShare?.({files:[f]})){await navigator.share({files:[f],title:"Jadwal Kuliah"});}
- else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download="jadwal.ics";a.click();}}
+ if(navigator.canShare?.({files:[f]})){try{await navigator.share({files:[f],title:"Jadwal Kuliah"});return true;}catch{/* share canceled or unsupported — fall through to download */}}
+ downloadICS(ics);return false;}
 export const googleCalLink=(s:Session)=>"https://calendar.google.com/calendar/render?action=TEMPLATE"+
  `&text=${encodeURIComponent(`${s.course} (${s.kelas})`)}&dates=${stamp(s.dateISO,s.start)}/${stamp(s.dateISO,s.end)}`+
  `&ctz=Asia/Jakarta&location=${encodeURIComponent(s.room)}&details=${encodeURIComponent("Dosen: "+s.dosen)}`;

@@ -70,7 +70,7 @@ export function App(){
   try{const res=await fetch(`${apiUrl}/lecturers`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({names,sessionId})});const data=await res.json();if(!res.ok)throw new Error(data.error||"Lecturer lookup failed.");const matches=new Map((data.results as LecturerMatch[]).map(m=>[norm(m.query),m]));setRows(rs=>rs.map(r=>{const m=matches.get(norm(r.dosen));return m?{...r,lecturerName:m.name||r.dosen,lecturerTitle:m.title||"",lecturerUrl:m.url,matchStatus:m.status,matchNote:m.note}:r;}));if(data.warning)toast(data.warning);}catch{setRows(rs=>rs.map(r=>r.matchStatus==="pending"?{...r,matchStatus:"manual",matchNote:"Lookup failed — use the manual search link."}:r));toast("Lecturer lookup failed; manual links remain available.");}finally{setLookingUp(false);}
  }
  async function copyAll(){if(!rows.length)return;await navigator.clipboard.writeText(exportByMode(rows,sortMode));toast("Plain text copied.");}
- async function addToCalendar(){if(!rows.length)return;try{await shareOrDownloadICS(buildICS(rows,{weeks,alarmMin:30}));toast("Calendar file exported.");}catch{toast("Calendar share not available — try download instead.");}}
+ async function addToCalendar(){if(!rows.length)return;const shared=await shareOrDownloadICS(buildICS(rows,{weeks,alarmMin:30}));if(!shared)toast("Calendar file downloaded — open it to add.");}
  function download(){if(!rows.length)return;const blob=new Blob([exportByMode(rows,sortMode)],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jadwal-gunadarma.txt";a.click();URL.revokeObjectURL(url);toast("Text file downloaded.");}
  return <main class="shell">
   <header class="masthead">
