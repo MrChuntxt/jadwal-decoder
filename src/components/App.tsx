@@ -70,7 +70,7 @@ export function App(){
  function download(){if(!rows.length)return;const blob=new Blob([exportByMode(rows,sortMode)],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jadwal-gunadarma.txt";a.click();URL.revokeObjectURL(url);toast("Text file downloaded.");}
  return <main class="shell">
   <header class="masthead">
-   <div><p class="eyebrow">SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder.</em></h1></div>
+   <div><p class="eyebrow">SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder</em></h1></div>
    {logo&&<div class="mast-right"><img class="gundar-badge" src={logo} alt="Universitas Gunadarma"/></div>}
   </header>
 
@@ -84,7 +84,7 @@ export function App(){
    <div class="pastebox">
     <div class="paste-head"><label for="raw-input">Or paste text based schedule</label><button class="text-button" onClick={()=>setRawText(SAMPLE)}>Use sample</button></div>
     <textarea id="raw-input" value={rawText} onInput={e=>setRawText((e.currentTarget as HTMLTextAreaElement).value)} placeholder={"(copy it straight from the website or use Google lens)"} />
-    <button class="parse-button" disabled={!rawText.trim()||extracting} onClick={parsePasted}><Icon name="spark"/> Parse pasted table <span>No AI</span></button>
+    <button class="parse-button" disabled={!rawText.trim()||extracting} onClick={parsePasted}><Icon name="spark"/> Run </button>
    </div>
   </section>
 
@@ -107,7 +107,7 @@ export function App(){
      <div class="raw-table-wrap"><table class="raw-table"><thead><tr><th>Kelas</th><th>Hari</th><th>Mata Kuliah</th><th>Waktu</th><th>Ruang</th><th>Dosen</th><th>Raw</th></tr></thead><tbody>{rows.map(r=><tr class={(r.issues?.length||0)>0?"row-warning":""}><td><input value={r.kelas} aria-label="Kelas" onInput={e=>updateRaw(r.id,"kelas",e.currentTarget.value)}/></td><td><input value={r.hari} aria-label="Hari" onInput={e=>updateRaw(r.id,"hari",e.currentTarget.value)}/></td><td><input value={r.mataKuliah} aria-label="Mata Kuliah" onInput={e=>updateRaw(r.id,"mataKuliah",e.currentTarget.value)}/></td><td><input value={r.waktu} aria-label="Waktu" onInput={e=>updateRaw(r.id,"waktu",e.currentTarget.value)}/></td><td><input value={r.ruang} aria-label="Ruang" onInput={e=>updateRaw(r.id,"ruang",e.currentTarget.value)}/></td><td><input value={r.dosen} aria-label="Dosen" onInput={e=>updateRaw(r.id,"dosen",e.currentTarget.value)}/></td><td class="raw-cell" title={r.raw}>{r.raw}</td></tr>)}</tbody></table></div>
     </section>}
     {(view==="final"||view==="split")&&<section class="final-panel">
-     <div class="section-heading"><div><p>DEFORMATTED / EDITABLE</p><h2>Your week</h2></div><div class={`lookup-state ${lookingUp?"active":""}`}>{lookingUp&&<span class="spinner small"/>}{lookingUp?"Checking lecturers":"Ready to export"}</div></div>
+     <div class="section-heading"><div><p>Result</p><h2>Your week</h2></div><div class={`lookup-state ${lookingUp?"active":""}`}>{lookingUp&&<span class="spinner small"/>}{lookingUp?"Checking lecturers":""}</div></div>
      <div class="day-list">{groups.map((grp,groupIndex)=><section class="day-group"><div class="day-rule"><span>{String(groupIndex+1).padStart(2,"0")}</span><h3>{sortMode==="day"?(grp.items[0]?.dateLabel||"Tanggal belum terbaca"):`Kelas ${grp.key}`}</h3><i/></div><div class="cards">{grp.items.map(s=><article class="class-card">
       <div class="card-top"><Field label="KELAS" value={s.kelas} warning={!s.kelas} onInput={v=>updateRaw(s.id,"kelas",v)}/><Field label="WAKTU" value={s.time} warning={!s.time} onInput={v=>update(s.id,{time:v,start:(v.split("-")[0]||"").trim(),end:(v.split("-")[1]||"").trim()})}/><button class="icon-button" title="Add to Google Calendar" onClick={()=>openExternal(googleCalLink(s))}><Icon name="calendar"/></button></div>
       <Field label="HARI / TANGGAL" value={s.dateLabel} warning={!s.dateISO} wide onInput={v=>update(s.id,{dateLabel:v})}/>
