@@ -78,7 +78,7 @@ export function App(){
    <div class={`dropzone ${dragging?"dragging":""} ${extracting?"busy":""}`} onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={()=>setDragging(false)} onDrop={e=>{e.preventDefault();setDragging(false);void handleFile(e.dataTransfer?.files?.[0])}} onClick={()=>!extracting&&fileRef.current?.click()} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" ")fileRef.current?.click()}}>
     <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>void handleFile((e.currentTarget as HTMLInputElement).files?.[0])}/>
     <div class="drop-icon">{extracting?<span class="spinner"/>:<Icon name="upload"/>}</div>
-    <div><strong>{extracting?"AI is reading the table…":apiUrl?"Upload Schedule":"OCR setup pending"}</strong><p>{extracting?"One vision call. No chained transforms.":apiUrl?(fileName||"Drop a photo here, or tap to browse"):"}</p></div>
+    <div><strong>{extracting?"AI is reading the table…":apiUrl?"Upload Schedule":"OCR setup pending"}</strong><p>{extracting?"One vision call. No chained transforms.":apiUrl?(fileName||"Drop a photo here, or tap to browse"):""}</p></div>
     <small>Resized to recommendation size before extraction</small>
    </div>
    <div class="pastebox">
