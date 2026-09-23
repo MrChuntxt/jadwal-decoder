@@ -13,7 +13,7 @@ Public Gunadarma schedule decoder: GitHub Pages frontend + Cloudflare Worker OCR
 **Why**: Ends portal headaches, stops campus navigation guesswork, and keeps class durations crystal clear.
 
 **How**:
-　　- Live Timelines: Visual schedules with real-time progress bars.
+  - Live Timelines: Visual schedules with real-time progress bars.
   
    - Building Pins: Tap any class to launch an interactive campus map.
 
