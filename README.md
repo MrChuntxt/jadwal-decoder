@@ -3,13 +3,20 @@ Public Gunadarma schedule decoder: GitHub Pages frontend + Cloudflare Worker OCR
 
 ## What is this?
  **Who**: Tech-savvy students lost on campus and faculty who need an easy way to share updates.
+ 
 **What** A campus schedule app that syncs your timetable, tracks class countdowns, pins build locations, and links instructor profiles.
+
 **Where**: iOS, Android, and smartwatches for on-the-go access between classes.
+
 **When**: Everyday use—from morning wake-up routines to real-time alerts before class starts.
+
 **Why**: Ends portal headaches, stops campus navigation guesswork, and keeps class durations crystal clear.
+
 **How**:
 　　- Live Timelines: Visual schedules with real-time progress bars.
+  
    - Building Pins: Tap any class to launch an interactive campus map.
+
    - Professor Cards: One-tap access to office hours and emails.
 
 ## Answering your
