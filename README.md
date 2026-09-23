@@ -22,13 +22,13 @@ Public Gunadarma schedule decoder: GitHub Pages frontend + Cloudflare Worker OCR
 - **unusual Schedule format?:**
 Makes your class schedule easier to read.
 - **Which campus building？:**
-Show you tha way
+Show you zha way
 - **Lecturer matching:**
 The systems fetches from Gunadarma's public directory.
 
 
 ## Public URL: 
-`https://mrchuntxt.github.io/jadwal-decoder/`
+[Visit The Web](https://mrchuntxt.github.io/jadwal-decoder/)   
 
 
 ## Input rules
