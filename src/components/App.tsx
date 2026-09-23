@@ -70,7 +70,7 @@ export function App(){
  function download(){if(!rows.length)return;const blob=new Blob([exportByMode(rows,sortMode)],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jadwal-gunadarma.txt";a.click();URL.revokeObjectURL(url);toast("Text file downloaded.");}
  return <main class="shell">
   <header class="masthead">
-   <div><p class="eyebrow">GUNADARMA / SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder.</em></h1></div>
+   <div><p class="eyebrow">SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder.</em></h1></div>
    {logo&&<div class="mast-right"><img class="gundar-badge" src={logo} alt="Universitas Gunadarma"/></div>}
   </header>
 
@@ -78,12 +78,12 @@ export function App(){
    <div class={`dropzone ${dragging?"dragging":""} ${extracting?"busy":""}`} onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={()=>setDragging(false)} onDrop={e=>{e.preventDefault();setDragging(false);void handleFile(e.dataTransfer?.files?.[0])}} onClick={()=>!extracting&&fileRef.current?.click()} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" ")fileRef.current?.click()}}>
     <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>void handleFile((e.currentTarget as HTMLInputElement).files?.[0])}/>
     <div class="drop-icon">{extracting?<span class="spinner"/>:<Icon name="upload"/>}</div>
-    <div><strong>{extracting?"AI is reading the table…":apiUrl?"Upload Schedule":"OCR setup pending"}</strong><p>{extracting?"One vision call. No chained transforms.":apiUrl?(fileName||"Drop a photo here, or tap to browse"):"Paste text still works with no AI"}</p></div>
-    <small>Resized to 1500px before extraction</small>
+    <div><strong>{extracting?"AI is reading the table…":apiUrl?"Upload Schedule":"OCR setup pending"}</strong><p>{extracting?"One vision call. No chained transforms.":apiUrl?(fileName||"Drop a photo here, or tap to browse"):"}</p></div>
+    <small>Resized to recommendation size before extraction</small>
    </div>
    <div class="pastebox">
-    <div class="paste-head"><label for="raw-input">Or paste schedule text</label><button class="text-button" onClick={()=>setRawText(SAMPLE)}>Use sample</button></div>
-    <textarea id="raw-input" value={rawText} onInput={e=>setRawText((e.currentTarget as HTMLTextAreaElement).value)} placeholder={"Paste the schedule table here (copy it straight from the website)"} />
+    <div class="paste-head"><label for="raw-input">Or paste text based schedule</label><button class="text-button" onClick={()=>setRawText(SAMPLE)}>Use sample</button></div>
+    <textarea id="raw-input" value={rawText} onInput={e=>setRawText((e.currentTarget as HTMLTextAreaElement).value)} placeholder={"(copy it straight from the website or use Google lens)"} />
     <button class="parse-button" disabled={!rawText.trim()||extracting} onClick={parsePasted}><Icon name="spark"/> Parse pasted table <span>No AI</span></button>
    </div>
   </section>
@@ -92,18 +92,14 @@ export function App(){
 
   {rows.length>0&&<section class="workspace v-animate-in">
    <div class="toolbar">
-    <div class="view-switch" aria-label="Result view">{(["final","raw","split"] as ViewMode[]).map(v=><button class={view===v?"active":""} onClick={()=>setView(v)}>{v==="final"?"Clean cards":v==="raw"?"Raw table":"Side by side"}</button>)}</div>
     <div class="actions">
-     <button onClick={copyAll}><Icon name="copy"/>Copy</button>
-     <button onClick={download}><Icon name="download"/>.txt</button>
      <button class="cal-button" onClick={addToCalendar}><Icon name="calendar"/>Add to Calendar</button>
-     <label class="weeks-input">Repeat weekly for <input type="number" min={1} max={20} value={weeks} onInput={e=>setWeeks(Math.max(1,Math.min(20,Math.round(Number((e.currentTarget as HTMLInputElement).value)||1))))}/> weeks</label>
     </div>
    </div>
-   <small class="cal-caption">Exports to your calendar app (one-way, not live sync).</small>
    <div class="sort-toggle" aria-label="Sort mode">
-    <button class={sortMode==="day"?"active":""} onClick={()=>setSortMode("day")}>By Day</button>
-    <button class={sortMode==="class"?"active":""} onClick={()=>setSortMode("class")}>By Class</button>
+     <small>Sort By</small>
+    <button class={sortMode==="day"?"active":""} onClick={()=>setSortMode("day")}>Day</button>
+    <button class={sortMode==="class"?"active":""} onClick={()=>setSortMode("class")}>Class</button>
    </div>
    <div class={`content-grid mode-${view}`}>
     {(view==="raw"||view==="split")&&<section class="raw-panel">
@@ -124,7 +120,6 @@ export function App(){
    </div>
   </section>}
 
-  {!rows.length&&!extracting&&<section class="empty-note"><span>02</span><p>Pasted text stays in your browser. Uploaded images use one AI call through the free-tier backend; lecturer names use a non-AI directory lookup.</p></section>}
   <footer class="watermark-footer"><span class="wm">Jundi_SamKok_30626093</span></footer>
   {notice&&<div class="toast" role="status">{notice}</div>}
  </main>;
