@@ -66,7 +66,7 @@ export function App(){
  function download(){if(!rows.length)return;const blob=new Blob([exportText(rows)],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jadwal-gunadarma.txt";a.click();URL.revokeObjectURL(url);toast("Text file downloaded.");}
  return <main class="shell">
   <header class="masthead">
-   <div><p class="eyebrow">GUNADARMA / SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder.</em></h1></div>
+   <div><p class="eyebrow">SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder.</em></h1></div>
    {logo&&<div class="mast-right"><img class="gundar-badge" src={logo} alt="Universitas Gunadarma"/></div>}
   </header>
 
@@ -74,8 +74,8 @@ export function App(){
    <div class={`dropzone ${dragging?"dragging":""} ${extracting?"busy":""}`} onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={()=>setDragging(false)} onDrop={e=>{e.preventDefault();setDragging(false);void handleFile(e.dataTransfer?.files?.[0])}} onClick={()=>!extracting&&fileRef.current?.click()} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" ")fileRef.current?.click()}}>
     <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>void handleFile((e.currentTarget as HTMLInputElement).files?.[0])}/>
     <div class="drop-icon">{extracting?<span class="spinner"/>:<Icon name="upload"/>}</div>
-    <div><strong>{extracting?"AI is reading the table…":apiUrl?"Upload Schedule":"OCR setup pending"}</strong><p>{extracting?"One vision call. No chained transforms.":apiUrl?(fileName||"Drop a photo here, or tap to browse"):"Paste text still works with no AI"}</p></div>
-    <small>Resized to 1500px before extraction</small>
+    <div><strong>{extracting?"AI is reading the table…":apiUrl?"Upload Schedule":"OCR setup pending"}</strong><p>{extracting?"Please wait a moment.":apiUrl?(fileName||"Drop a photo here, or tap to browse"):"Paste text "}</p></div>
+    <small>Resized to recommended size before extraction</small>
    </div>
    <div class="pastebox">
     <div class="paste-head"><label for="raw-input">Or paste schedule text</label><button class="text-button" onClick={()=>setRawText(SAMPLE)}>Use sample</button></div>
@@ -110,7 +110,7 @@ export function App(){
    </div>
   </section>}
 
-  {!rows.length&&!extracting&&<section class="empty-note"><span>02</span><p>Pasted text stays in your browser. Uploaded images use one AI call through the free-tier backend; lecturer names use a non-AI directory lookup.</p></section>}
+  {!rows.length&&!extracting&&<section class="empty-note"><span>02</span><p>.</p></section>}
   <footer class="watermark-footer"><span class="wm">Jundi_SamKok_30626093</span></footer>
   {notice&&<div class="toast" role="status">{notice}</div>}
  </main>;
