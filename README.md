@@ -1,6 +1,6 @@
 # Jadwal Decoder
 Public Gunadarma schedule decoder: GitHub Pages frontend + Cloudflare Worker OCR API + Low Cost please ✌️😭.
-＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿______＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+
 ## What is this?
  **Who**: Tech-savvy students lost on campus and faculty who need an easy way to share updates.
 **What** A campus schedule app that syncs your timetable, tracks class countdowns, pins build locations, and links instructor profiles.
@@ -19,11 +19,12 @@ Makes your class schedule easier to read.
 Show you tha way
 - **Lecturer matching:**
 The systems fetches from Gunadarma's public directory.
-＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿______
 
-Public URL: `https://mrchuntxt.github.io/jadwal-decoder/`
 
-＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿______
+## Public URL: 
+`https://mrchuntxt.github.io/jadwal-decoder/`
+
+
 ## Input rules
 Image upload accepts JPEG, PNG, or WebP and resizes client-side before the single OCR request. 
 <img width="923" height="1244" alt="Screenshot_2026-09-23-04-59-40-063_com android chrome" src="https://github.com/user-attachments/assets/42e51a68-0407-484c-afda-0964263ddfc3" />
