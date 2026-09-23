@@ -3,6 +3,7 @@ type Staff={front_title?:string;name?:string;back_title?:string;username?:string
 const STAFF_API="https://staffsite.gunadarma.ac.id/api/lecturers?page=1&limit=5000";
 const STAFF_BASE="https://staffsite.gunadarma.ac.id";
 const SYSTEM=`You extract tabular class schedules from images. Return JSON only, no markdown. Expected Indonesian columns: KELAS, HARI, MATA KULIAH, WAKTU, RUANG, DOSEN. Extract every visible class row in reading order. Do not transform, expand, correct, infer, or translate values. Preserve spelling, capitalization, asterisks, slash-separated period numbers, and room codes exactly as visible. If a cell is unreadable, use an empty string and add its uppercase field name to that row's issues array. Return exactly: {"rows":[{"kelas":"","hari":"","mataKuliah":"","waktu":"","ruang":"","dosen":"","issues":[]}],"notes":[]}. Never invent a row or missing value.`;
+const TEXT_SYSTEM=`You convert messy pasted Gunadarma class-schedule text into structured rows. Return JSON only, no markdown. Expected Indonesian columns: KELAS, HARI, MATA KULIAH, WAKTU, RUANG, DOSEN. Normalize curly apostrophes to straight ones (Jum'at -> Jumat). Preserve course markers (*, **), slash-separated period numbers, and room codes exactly. If a value is missing, use an empty string and add its uppercase field name to that row's issues array. Return exactly: {"rows":[{"kelas":"","hari":"","mataKuliah":"","waktu":"","ruang":"","dosen":"","issues":[]}],"notes":[]}. Never invent a row or missing value.`;
 function cors(req:Request,env:Env){const origin=req.headers.get("Origin")||"";const allowed=env.ALLOWED_ORIGIN?.split(",").map(x=>x.trim()).filter(Boolean)||[];const ok=allowed.includes(origin)||allowed.includes("*");return {ok,headers:{"Access-Control-Allow-Origin":ok?origin:"null","Vary":"Origin","Access-Control-Allow-Headers":"Content-Type","Access-Control-Allow-Methods":"POST,OPTIONS","Cache-Control":"no-store"}}}
 const json=(data:unknown,status:number,headers:Record<string,string>)=>new Response(JSON.stringify(data),{status,headers:{...headers,"Content-Type":"application/json; charset=utf-8"}});
 const val=(x:unknown)=>typeof x==="string"?x.trim():x==null?"":String(x).trim();
@@ -42,5 +43,40 @@ async function ocr(req:Request,env:Env,h:Record<string,string>){
   return json({rows,notes:Array.isArray(parsed.notes)?parsed.notes.map(val).filter(Boolean):[]},200,h);
 }
 
+const HARI_RE=/^(sen(in)?|sel(asa)?|rab(u)?|kam(is)?|jum'?at|jumat|sab(tu)?|min(ggu)?)$/i;
+const WAKTU_RE=/^\d{1,2}(\s*\/\s*\d{1,2})*$/;
+const RUANG_RE=/^[ACDEGH]\d{3}$/i;
+const KELAS_RE=/^\d[A-Z]{2,3}\d{2}$/i;
+async function prs(req:Request,env:Env,h:Record<string,string>){
+  const body=await req.json() as {text?:string};
+  const text=(body.text||"").trim();
+  if(!text)return json({error:"No schedule text provided."},400,h);
+  let raw:unknown;
+  try{
+    raw=await env.AI.run("@cf/google/gemma-4-26b-a4b-it",{messages:[
+      {role:"system",content:TEXT_SYSTEM},
+      {role:"user",content:text}
+    ],max_tokens:5000,temperature:0});
+  }catch(e){return json({error:`Text parse model failed: ${e instanceof Error?e.message:"unknown"}`},502,h);}
+  let outText:unknown=raw;
+  if(raw&&typeof raw==="object"){
+    const r=raw as any;
+    outText=r.response??r.result?.response??(Array.isArray(r.choices)?r.choices[0]?.message?.content:undefined)??r;
+  }
+  let parsed:any;
+  try{parsed=parseJson(outText);}catch(e){return json({error:`The parser returned unexpected output (${e instanceof Error?e.message:"?"}).`},502,h);}
+  const fields=[["kelas","KELAS"],["hari","HARI"],["mataKuliah","MATA KULIAH"],["waktu","WAKTU"],["ruang","RUANG"],["dosen","DOSEN"]] as const;
+  const rows=Array.isArray(parsed.rows)?parsed.rows.slice(0,100).map((x:any)=>{const out:any={kelas:val(x?.kelas),hari:val(x?.hari),mataKuliah:val(x?.mataKuliah),waktu:val(x?.waktu),ruang:val(x?.ruang),dosen:val(x?.dosen),issues:Array.isArray(x?.issues)?x.issues.map(val).filter(Boolean):[]};return out;}):[];
+  for(const r of rows){
+    if(!r.kelas||!KELAS_RE.test(r.kelas)){r.kelas=val(r.kelas);r.issues.push("KELAS");}
+    if(!r.hari||!HARI_RE.test(r.hari)){r.hari="";if(!r.issues.includes("HARI"))r.issues.push("HARI");}
+    if(!r.waktu||!WAKTU_RE.test(r.waktu)){r.waktu="";if(!r.issues.includes("WAKTU"))r.issues.push("WAKTU");}
+    if(!r.ruang||!RUANG_RE.test(r.ruang)){r.ruang="";if(!r.issues.includes("RUANG"))r.issues.push("RUANG");}
+    if(!r.mataKuliah)r.issues.push("MATA KULIAH");
+    if(!r.dosen)r.issues.push("DOSEN");
+  }
+  if(!rows.length)return json({error:"No schedule rows were readable from that text."},422,h);
+  return json({rows,notes:Array.isArray(parsed.notes)?parsed.notes.map(val).filter(Boolean):[]},200,h);
+}
 async function lecturers(req:Request,h:Record<string,string>){const body=await req.json() as {names?:unknown[]};const names=[...new Set((Array.isArray(body.names)?body.names:[]).map(x=>String(x??"").trim()).filter(Boolean))].slice(0,100);if(!names.length)return json({results:[]},200,h);const r=await fetch(STAFF_API,{headers:{Accept:"application/json"},cf:{cacheEverything:true,cacheTtl:1800}});if(!r.ok)return json({results:names.map(manual),warning:"Staffsite was unavailable; manual links are shown."},200,h);const p=await r.json() as {data?:Staff[]};const rows=Array.isArray(p.data)?p.data:[];return json({results:names.map(n=>matchOne(n,rows))},200,h)}
-export default {async fetch(req:Request,env:Env){const c=cors(req,env);if(req.method==="OPTIONS")return new Response(null,{status:c.ok?204:403,headers:c.headers});if(!c.ok)return json({error:"Origin not allowed."},403,c.headers);try{const path=new URL(req.url).pathname;if(req.method!=="POST")return json({error:"Method not allowed."},405,c.headers);if(path.endsWith("/ocr"))return await ocr(req,env,c.headers);if(path.endsWith("/lecturers"))return await lecturers(req,c.headers);return json({error:"Not found."},404,c.headers)}catch(e){return json({error:e instanceof Error?e.message:"Request failed"},500,c.headers)}}} satisfies ExportedHandler<Env>;
+export default {async fetch(req:Request,env:Env){const c=cors(req,env);if(req.method==="OPTIONS")return new Response(null,{status:c.ok?204:403,headers:c.headers});if(!c.ok)return json({error:"Origin not allowed."},403,c.headers);try{const path=new URL(req.url).pathname;if(req.method!=="POST")return json({error:"Method not allowed."},405,c.headers);if(path.endsWith("/ocr"))return await ocr(req,env,c.headers);if(path.endsWith("/parse"))return await prs(req,env,c.headers);if(path.endsWith("/lecturers"))return await lecturers(req,c.headers);return json({error:"Not found."},404,c.headers)}catch(e){return json({error:e instanceof Error?e.message:"Request failed"},500,c.headers)}}} satisfies ExportedHandler<Env>;

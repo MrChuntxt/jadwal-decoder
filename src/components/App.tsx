@@ -1,12 +1,15 @@
 import { useMemo, useRef, useState } from "preact/hooks";
 import logoUrl from "../assets/ug-logo.png";
-import { exportText, makeSession, norm, parseText, recalc, uid, type RawRow, type EditableRawKey, type Session } from "../lib/schedule";
+import { exportText, makeSession, norm, recalc, uid, type RawRow, type EditableRawKey, type Session } from "../lib/schedule";
+import { parsePastedCascade } from "../lib/cascade";
+import { groupSessions, type SortMode } from "../lib/group";
+import { buildICS, shareOrDownloadICS, googleCalLink } from "../lib/ics";
 
 type ViewMode = "final" | "raw" | "split";
 type LecturerMatch = { query:string; name:string; title:string; displayName:string; url:string; status:"matched"|"possible"|"manual"; score:number; note?:string };
 const SAMPLE = `KELAS\tHARI\tMATA KULIAH\tWAKTU\tRUANG\tDOSEN\n1SC03\tSenin\tSistem Basis Data*\t1/2\tG237\tABDUL MUCHLIS\n1SC03\tRabu\tAlgoritma Pemrograman**\t5/6\tE314\tBUDI SANTOSO`;
 
-function Icon({name}:{name:"upload"|"spark"|"copy"|"download"|"map"|"staff"|"trash"|"plus"}){
+function Icon({name}:{name:"upload"|"spark"|"copy"|"download"|"map"|"staff"|"trash"|"plus"|"calendar"}){
  const paths:Record<string,any>= {
   upload:<><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M5 15v4h14v-4"/></>,
   spark:<><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z"/><path d="M18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/></>,
@@ -15,7 +18,8 @@ function Icon({name}:{name:"upload"|"spark"|"copy"|"download"|"map"|"staff"|"tra
   map:<><path d="M12 21s6-5.2 6-12a6 6 0 1 0-12 0c0 6.8 6 12 6 12z"/><circle cx="12" cy="9" r="2"/></>,
   staff:<><circle cx="9" cy="8" r="3"/><path d="M3 19c.5-4 2.5-6 6-6s5.5 2 6 6"/><path d="M16 7h5m-2.5-2.5v5"/></>,
   trash:<><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7"/><path d="M10 11v5m4-5v5"/></>,
-  plus:<><path d="M12 5v14M5 12h14"/></>
+  plus:<><path d="M12 5v14M5 12h14"/></>,
+  calendar:<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/></>
  };
  return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>;
 }
@@ -24,6 +28,7 @@ function Field({label,value,onInput,warning,wide=false}:{label:string;value:stri
  return <label class={`edit-field ${wide?"wide":""} ${warning?"has-warning":""}`}><span>{label}</span><input value={value} onInput={e=>onInput((e.currentTarget as HTMLInputElement).value)} /></label>;
 }
 function openExternal(url:string){ if(url) window.open(url,"_blank","noopener,noreferrer"); }
+function exportByMode(sessions:Session[],mode:SortMode){ if(mode==="day") return exportText(sessions); const groups:string[]=[]; for(const g of groupSessions(sessions,"class")){const cards=g.items.map(s=>`Kelas: ${s.kelas}\nWaktu: ${s.time} — ${s.dateLabel}\nMata Kuliah: ${s.course}\nRuang: ${s.roomText}${s.roomUrl?` — ${s.roomUrl}`:""}\nDosen: ${s.lecturerName}${s.lecturerTitle?` (${s.lecturerTitle})`:""}${s.lecturerUrl?` — ${s.lecturerUrl}`:""}`).join("\n");groups.push(`\n=== Kelas ${g.key} ===\n${cards}`);} return groups.join("\n").trim(); }
 
 export function App(){
  const [rawText,setRawText]=useState("");
@@ -35,12 +40,14 @@ export function App(){
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
  const [fileName,setFileName]=useState("");
+ const [sortMode,setSortMode]=useState<SortMode>("day");
+ const [weeks,setWeeks]=useState(1);
  const fileRef=useRef<HTMLInputElement>(null);
  const apiUrl=(import.meta.env.VITE_OCR_API_URL||"").replace(/\/$/,"");
  const logo=logoUrl;
  const sessionId=useMemo(()=>`ug-${uid()}`,[]);
- const sorted=useMemo(()=>[...rows].sort((a,b)=>(a.dateISO||"9999").localeCompare(b.dateISO||"9999")||a.time.localeCompare(b.time)),[rows]);
- const groups=useMemo(()=>{const map=new Map<string,Session[]>();for(const row of sorted){const k=row.dateLabel||"Tanggal belum terbaca";map.set(k,[...(map.get(k)||[]),row]);}return [...map.entries()]},[sorted]);
+ const sorted=useMemo(()=>[...rows].sort((a,b)=>(a.dateISO||"9999").localeCompare(b.dateISO||"9999")||a.start.localeCompare(b.start)),[rows]);
+ const groups=useMemo(()=>groupSessions(sorted,sortMode),[sorted,sortMode]);
 
  function toast(message:string){setNotice(message);window.setTimeout(()=>setNotice(""),2600);}
  function update(id:string,patch:Partial<Session>){setRows(rs=>rs.map(r=>r.id===id?{...r,...patch}:r));}
@@ -55,18 +62,19 @@ export function App(){
   if(!file)return;if(!file.type.startsWith("image/")){setError("Use a schedule image: JPEG, PNG, or WebP.");return;}
   if(!apiUrl){setError("OCR is not configured yet. Paste the schedule text below while the free backend is being connected.");return;}
   setError("");setFileName(file.name);setExtracting(true);setRows([]);
-  try{const image=await resizeImage(file);const res=await fetch(`${apiUrl}/ocr`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({imageBase64:image.base64,mimeType:image.mimeType})});const data=await res.json();if(!res.ok)throw new Error(data.error||"Extraction failed.");const next=(data.rows as RawRow[]).map(makeSession);setRows(next);setRawText(JSON.stringify(data.rows,null,2));setView("final");toast(`${next.length} class session${next.length===1?"":"s"} extracted.`);void lookupLecturers(next);}catch(e){setError(e instanceof Error?e.message:"Could not read that image.");}finally{setExtracting(false);}
+  try{const image=await resizeImage(file);const res=await fetch(`${apiUrl}/ocr`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({imageBase64:image.base64,mimeType:image.mimeType})});const data=await res.json();if(!res.ok)throw new Error(data.error||"Extraction failed.");const next=(data.rows as RawRow[]).map(r=>makeSession(r));setRows(next);setRawText(JSON.stringify(data.rows,null,2));setView("final");toast(`${next.length} class session${next.length===1?"":"s"} extracted.`);void lookupLecturers(next);}catch(e){setError(e instanceof Error?e.message:"Could not read that image.");}finally{setExtracting(false);}
  }
- function parsePasted(){setError("");const parsed=parseText(rawText);if(!parsed.length){setError("No rows found. Use tabs, pipes, semicolons, or two spaces between the six columns.");return;}const next=parsed.map(makeSession);setRows(next);setView("final");toast(`${next.length} pasted row${next.length===1?"":"s"} parsed without AI.`);void lookupLecturers(next);}
+ async function parsePasted(){setError("");try{const parsed=await parsePastedCascade(rawText,apiUrl);if(!parsed.length){setError("No schedule rows were found in that text. Paste the table straight from the website (with KELAS, HARI, MATA KULIAH, WAKTU, RUANG, DOSEN columns).");return;}const next=parsed.map(({row,raw})=>makeSession(row,raw));setRows(next);setView("final");toast(`${next.length} pasted row${next.length===1?"":"s"} parsed.`);void lookupLecturers(next);}catch(e){setError(e instanceof Error?e.message:"Could not parse that text.");}}
  async function lookupLecturers(source=rows){
   const names=[...new Set(source.map(r=>r.dosen.trim()).filter(Boolean))];if(!names.length||!apiUrl)return;setLookingUp(true);setRows(rs=>rs.map(r=>names.includes(r.dosen.trim())?{...r,matchStatus:"pending"}:r));
   try{const res=await fetch(`${apiUrl}/lecturers`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({names,sessionId})});const data=await res.json();if(!res.ok)throw new Error(data.error||"Lecturer lookup failed.");const matches=new Map((data.results as LecturerMatch[]).map(m=>[norm(m.query),m]));setRows(rs=>rs.map(r=>{const m=matches.get(norm(r.dosen));return m?{...r,lecturerName:m.name||r.dosen,lecturerTitle:m.title||"",lecturerUrl:m.url,matchStatus:m.status,matchNote:m.note}:r;}));if(data.warning)toast(data.warning);}catch{setRows(rs=>rs.map(r=>r.matchStatus==="pending"?{...r,matchStatus:"manual",matchNote:"Lookup failed — use the manual search link."}:r));toast("Lecturer lookup failed; manual links remain available.");}finally{setLookingUp(false);}
  }
- async function copyAll(){if(!rows.length)return;await navigator.clipboard.writeText(exportText(rows));toast("Plain text copied.");}
- function download(){if(!rows.length)return;const blob=new Blob([exportText(rows)],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jadwal-gunadarma.txt";a.click();URL.revokeObjectURL(url);toast("Text file downloaded.");}
+ async function copyAll(){if(!rows.length)return;await navigator.clipboard.writeText(exportByMode(rows,sortMode));toast("Plain text copied.");}
+ async function addToCalendar(){if(!rows.length)return;try{await shareOrDownloadICS(buildICS(rows,{weeks,alarmMin:30}));toast("Calendar file exported.");}catch{toast("Calendar share not available — try download instead.");}}
+ function download(){if(!rows.length)return;const blob=new Blob([exportByMode(rows,sortMode)],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="jadwal-gunadarma.txt";a.click();URL.revokeObjectURL(url);toast("Text file downloaded.");}
  return <main class="shell">
   <header class="masthead">
-   <div><p class="eyebrow">SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder</em></h1></div>
+   <div><p class="eyebrow">GUNADARMA / SCHEDULE DECODER</p><h1>Jadwal<br/><em>Decoder.</em></h1></div>
    {logo&&<div class="mast-right"><img class="gundar-badge" src={logo} alt="Universitas Gunadarma"/></div>}
   </header>
 
@@ -74,13 +82,13 @@ export function App(){
    <div class={`dropzone ${dragging?"dragging":""} ${extracting?"busy":""}`} onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={()=>setDragging(false)} onDrop={e=>{e.preventDefault();setDragging(false);void handleFile(e.dataTransfer?.files?.[0])}} onClick={()=>!extracting&&fileRef.current?.click()} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" ")fileRef.current?.click()}}>
     <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>void handleFile((e.currentTarget as HTMLInputElement).files?.[0])}/>
     <div class="drop-icon">{extracting?<span class="spinner"/>:<Icon name="upload"/>}</div>
-    <div><strong>{extracting?"AI is reading the table…":apiUrl?"Upload Schedule":"OCR setup pending"}</strong><p>{extracting?"Please wait a moment.":apiUrl?(fileName||"Drop a photo here, or tap to browse"):"Paste text "}</p></div>
-    <small>Resized to recommended size before extraction</small>
+    <div><strong>{extracting?"AI is reading the table…":apiUrl?"Upload Schedule":"OCR setup pending"}</strong><p>{extracting?"One vision call. No chained transforms.":apiUrl?(fileName||"Drop a photo here, or tap to browse"):"Paste text still works with no AI"}</p></div>
+    <small>Resized to 1500px before extraction</small>
    </div>
    <div class="pastebox">
-    <div class="paste-head"><label for="raw-input">Text based</label><button class="text-button" onClick={()=>setRawText(SAMPLE)}>Example</button></div>
-    <textarea id="raw-input" value={rawText} onInput={e=>setRawText((e.currentTarget as HTMLTextAreaElement).value)} placeholder={'KELAS   HARI   MATA KULIAH   WAKTU   RUANG   DOSEN\n1SC03   Senin   Sistem Basis Data*   1/2   G237   Nama Dosen'} />
-    <button class="parse-button" disabled={!rawText.trim()||extracting} onClick={parsePasted}><Icon name="spark"/> Run the program </button>
+    <div class="paste-head"><label for="raw-input">Or paste schedule text</label><button class="text-button" onClick={()=>setRawText(SAMPLE)}>Use sample</button></div>
+    <textarea id="raw-input" value={rawText} onInput={e=>setRawText((e.currentTarget as HTMLTextAreaElement).value)} placeholder={"Paste the schedule table here (copy it straight from the website)"} />
+    <button class="parse-button" disabled={!rawText.trim()||extracting} onClick={parsePasted}><Icon name="spark"/> Parse pasted table <span>No AI</span></button>
    </div>
   </section>
 
@@ -89,17 +97,28 @@ export function App(){
   {rows.length>0&&<section class="workspace v-animate-in">
    <div class="toolbar">
     <div class="view-switch" aria-label="Result view">{(["final","raw","split"] as ViewMode[]).map(v=><button class={view===v?"active":""} onClick={()=>setView(v)}>{v==="final"?"Clean cards":v==="raw"?"Raw table":"Side by side"}</button>)}</div>
-    <div class="actions"><button onClick={addBlank}><Icon name="plus"/>Add row</button><button onClick={copyAll}><Icon name="copy"/>Copy</button><button onClick={download}><Icon name="download"/>.txt</button></div>
+    <div class="actions">
+     <button onClick={addBlank}><Icon name="plus"/>Add row</button>
+     <button onClick={copyAll}><Icon name="copy"/>Copy</button>
+     <button onClick={download}><Icon name="download"/>.txt</button>
+     <button class="cal-button" onClick={addToCalendar}><Icon name="calendar"/>Add to Calendar</button>
+     <label class="weeks-input">Repeat weekly for <input type="number" min={1} max={20} value={weeks} onInput={e=>setWeeks(Math.max(1,Math.min(20,Math.round(Number((e.currentTarget as HTMLInputElement).value)||1))))}/> weeks</label>
+    </div>
+   </div>
+   <small class="cal-caption">Exports to your calendar app (one-way, not live sync).</small>
+   <div class="sort-toggle" aria-label="Sort mode">
+    <button class={sortMode==="day"?"active":""} onClick={()=>setSortMode("day")}>By Day</button>
+    <button class={sortMode==="class"?"active":""} onClick={()=>setSortMode("class")}>By Class</button>
    </div>
    <div class={`content-grid mode-${view}`}>
     {(view==="raw"||view==="split")&&<section class="raw-panel">
      <div class="section-heading"><div><p>RAW / AUDIT LAYER</p><h2>Parsed table</h2></div><span>{rows.length} rows</span></div>
-     <div class="raw-table-wrap"><table class="raw-table"><thead><tr><th>Kelas</th><th>Hari</th><th>Mata Kuliah</th><th>Waktu</th><th>Ruang</th><th>Dosen</th><th/></tr></thead><tbody>{rows.map(r=><tr class={(r.issues?.length||0)>0?"row-warning":""}><td><input value={r.kelas} aria-label="Kelas" onInput={e=>updateRaw(r.id,"kelas",e.currentTarget.value)}/></td><td><input value={r.hari} aria-label="Hari" onInput={e=>updateRaw(r.id,"hari",e.currentTarget.value)}/></td><td><input value={r.mataKuliah} aria-label="Mata Kuliah" onInput={e=>updateRaw(r.id,"mataKuliah",e.currentTarget.value)}/></td><td><input value={r.waktu} aria-label="Waktu" onInput={e=>updateRaw(r.id,"waktu",e.currentTarget.value)}/></td><td><input value={r.ruang} aria-label="Ruang" onInput={e=>updateRaw(r.id,"ruang",e.currentTarget.value)}/></td><td><input value={r.dosen} aria-label="Dosen" onInput={e=>updateRaw(r.id,"dosen",e.currentTarget.value)}/></td><td><button class="icon-button danger" aria-label="Remove row" onClick={()=>remove(r.id)}><Icon name="trash"/></button></td></tr>)}</tbody></table></div>
+     <div class="raw-table-wrap"><table class="raw-table"><thead><tr><th>Kelas</th><th>Hari</th><th>Mata Kuliah</th><th>Waktu</th><th>Ruang</th><th>Dosen</th><th>Raw</th><th/></tr></thead><tbody>{rows.map(r=><tr class={(r.issues?.length||0)>0?"row-warning":""}><td><input value={r.kelas} aria-label="Kelas" onInput={e=>updateRaw(r.id,"kelas",e.currentTarget.value)}/></td><td><input value={r.hari} aria-label="Hari" onInput={e=>updateRaw(r.id,"hari",e.currentTarget.value)}/></td><td><input value={r.mataKuliah} aria-label="Mata Kuliah" onInput={e=>updateRaw(r.id,"mataKuliah",e.currentTarget.value)}/></td><td><input value={r.waktu} aria-label="Waktu" onInput={e=>updateRaw(r.id,"waktu",e.currentTarget.value)}/></td><td><input value={r.ruang} aria-label="Ruang" onInput={e=>updateRaw(r.id,"ruang",e.currentTarget.value)}/></td><td><input value={r.dosen} aria-label="Dosen" onInput={e=>updateRaw(r.id,"dosen",e.currentTarget.value)}/></td><td class="raw-cell" title={r.raw}>{r.raw}</td><td><button class="icon-button danger" aria-label="Remove row" onClick={()=>remove(r.id)}><Icon name="trash"/></button></td></tr>)}</tbody></table></div>
     </section>}
     {(view==="final"||view==="split")&&<section class="final-panel">
      <div class="section-heading"><div><p>DEFORMATTED / EDITABLE</p><h2>Your week</h2></div><div class={`lookup-state ${lookingUp?"active":""}`}>{lookingUp&&<span class="spinner small"/>}{lookingUp?"Checking lecturers":"Ready to export"}</div></div>
-     <div class="day-list">{groups.map(([day,items],groupIndex)=><section class="day-group"><div class="day-rule"><span>{String(groupIndex+1).padStart(2,"0")}</span><h3>{day}</h3><i/></div><div class="cards">{items.map(s=><article class="class-card">
-      <div class="card-top"><Field label="KELAS" value={s.kelas} warning={!s.kelas} onInput={v=>updateRaw(s.id,"kelas",v)}/><Field label="WAKTU" value={s.time} warning={!s.time} onInput={v=>update(s.id,{time:v})}/><button class="icon-button danger" aria-label="Remove class" onClick={()=>remove(s.id)}><Icon name="trash"/></button></div>
+     <div class="day-list">{groups.map((grp,groupIndex)=><section class="day-group"><div class="day-rule"><span>{String(groupIndex+1).padStart(2,"0")}</span><h3>{sortMode==="day"?(grp.items[0]?.dateLabel||"Tanggal belum terbaca"):`Kelas ${grp.key}`}</h3><i/></div><div class="cards">{grp.items.map(s=><article class="class-card">
+      <div class="card-top"><Field label="KELAS" value={s.kelas} warning={!s.kelas} onInput={v=>updateRaw(s.id,"kelas",v)}/><Field label="WAKTU" value={s.time} warning={!s.time} onInput={v=>update(s.id,{time:v,start:(v.split("-")[0]||"").trim(),end:(v.split("-")[1]||"").trim()})}/><button class="icon-button" title="Add to Google Calendar" onClick={()=>openExternal(googleCalLink(s))}><Icon name="calendar"/></button><button class="icon-button danger" aria-label="Remove class" onClick={()=>remove(s.id)}><Icon name="trash"/></button></div>
       <Field label="HARI / TANGGAL" value={s.dateLabel} warning={!s.dateISO} wide onInput={v=>update(s.id,{dateLabel:v})}/>
       <Field label="MATA KULIAH" value={s.course} warning={!s.course} wide onInput={v=>update(s.id,{course:v})}/>
       <div class="linked-field"><Field label="RUANG" value={s.roomText} warning={!s.roomText} wide onInput={v=>update(s.id,{roomText:v})}/>{s.roomUrl&&<button title="Open campus in Google Maps" onClick={()=>openExternal(s.roomUrl)}><Icon name="map"/></button>}</div>
@@ -110,7 +129,7 @@ export function App(){
    </div>
   </section>}
 
-  {!rows.length&&!extracting&&<section class="empty-note"><span>The result will show here</span><p>.</p></section>}
+  {!rows.length&&!extracting&&<section class="empty-note"><span>02</span><p>Pasted text stays in your browser. Uploaded images use one AI call through the free-tier backend; lecturer names use a non-AI directory lookup.</p></section>}
   <footer class="watermark-footer"><span class="wm">Jundi_SamKok_30626093</span></footer>
   {notice&&<div class="toast" role="status">{notice}</div>}
  </main>;
