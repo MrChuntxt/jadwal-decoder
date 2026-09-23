@@ -1,44 +1,32 @@
 # Jadwal Decoder
+Public Gunadarma schedule decoder: GitHub Pages frontend + Cloudflare Worker OCR API + Low Cost please ✌️😭.
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿______＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+## What is this?
+ **Who**: Tech-savvy students lost on campus and faculty who need an easy way to share updates.
+**What** A campus schedule app that syncs your timetable, tracks class countdowns, pins build locations, and links instructor profiles.
+**Where**: iOS, Android, and smartwatches for on-the-go access between classes.
+**When**: Everyday use—from morning wake-up routines to real-time alerts before class starts.
+**Why**: Ends portal headaches, stops campus navigation guesswork, and keeps class durations crystal clear.
+**How**:
+　　- Live Timelines: Visual schedules with real-time progress bars.
+   - Building Pins: Tap any class to launch an interactive campus map.
+   - Professor Cards: One-tap access to office hours and emails.
 
-Public Gunadarma schedule decoder: GitHub Pages frontend + Cloudflare Worker OCR API.
-
-## Cost design
-
-- **GitHub Pages:** $0 for public repositories.
-- **Cloudflare Workers:** use the Free plan. Requests stop at the free-plan limit instead of silently creating usage charges unless billing is deliberately enabled.
-- **Workers AI:** one multimodal call per uploaded image; all date/time/course/room transforms run locally in the browser. Keep the Cloudflare account on the Free plan to hard-stop at the included daily allocation.
-- **Lecturer matching:** no AI call; the Worker fetches and caches Gunadarma's public directory.
-
-## Local setup
-
-```bash
-npm install
-cp .env.example .env
-npm run dev
-npm test
-npm run build
-```
-
-Pasted table text works even without an OCR backend.
-
-## Deploy the Worker (free tier)
-
-1. Create/login to a Cloudflare account and install Wrangler through this project (`npm install` already does it).
-2. Run `npx wrangler login`.
-3. Check `worker/wrangler.toml`; `ALLOWED_ORIGIN` is restricted to `https://mrchuntxt.github.io`.
-4. Run `npm run worker:deploy` and copy the resulting `workers.dev` URL.
-
-The Worker uses the Workers AI binding, so no AI key is stored in GitHub or sent to browsers.
-
-## Deploy GitHub Pages
-
-1. In the GitHub repository, open **Settings → Pages** and choose **GitHub Actions** as source.
-2. Open **Settings → Secrets and variables → Actions → Variables**.
-3. Create repository variable `VITE_OCR_API_URL` with the Worker URL, without a trailing slash.
-4. Re-run the **Deploy GitHub Pages** workflow.
+## Answering your
+- **unusual Schedule format?:**
+Makes your class schedule easier to read.
+- **Which campus building？:**
+Show you tha way
+- **Lecturer matching:**
+The systems fetches from Gunadarma's public directory.
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿______
 
 Public URL: `https://mrchuntxt.github.io/jadwal-decoder/`
 
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿______
 ## Input rules
+Image upload accepts JPEG, PNG, or WebP and resizes client-side before the single OCR request. 
+<img width="923" height="1244" alt="Screenshot_2026-09-23-04-59-40-063_com android chrome" src="https://github.com/user-attachments/assets/42e51a68-0407-484c-afda-0964263ddfc3" />
+Recommended to use this size for easier reading and smaller upload size.
 
-Image upload accepts JPEG, PNG, or WebP and resizes client-side before the single OCR request. Pasted rows are parsed locally and can be separated with tabs, pipes, semicolons, or 2+ spaces.
+Pasted rows are parsed locally and can be separated with tabs, pipes, semicolons, or 2+ spaces.
