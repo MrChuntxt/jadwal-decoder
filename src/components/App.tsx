@@ -80,7 +80,7 @@ export function App(){
    <div class="pastebox">
     <div class="paste-head"><label for="raw-input">Text based</label><button class="text-button" onClick={()=>setRawText(SAMPLE)}>Example</button></div>
     <textarea id="raw-input" value={rawText} onInput={e=>setRawText((e.currentTarget as HTMLTextAreaElement).value)} placeholder={'KELAS   HARI   MATA KULIAH   WAKTU   RUANG   DOSEN\n1SC03   Senin   Sistem Basis Data*   1/2   G237   Nama Dosen'} />
-    <button class="parse-button" disabled={!rawText.trim()||extracting} onClick={parsePasted}><Icon name="spark"/> Run the program <span>No AI</span></button>
+    <button class="parse-button" disabled={!rawText.trim()||extracting} onClick={parsePasted}><Icon name="spark"/> Run the program </button>
    </div>
   </section>
 
