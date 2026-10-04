@@ -1,12 +1,12 @@
-# Jadwal Decoder
-Public Gunadarma schedule decoder: GitHub Pages frontend + Cloudflare Worker OCR API + Low Cost please ✌️😭.
-
 ## URL: 
 [Visit The Web](https://mrchuntxt.github.io/jadwal-decoder/)   
 
 
 ## Please Read this before you use it
 *What is This?*
+Public Gunadarma schedule decoder: GitHub Pages frontend + Cloudflare Worker OCR API + Low Cost please ✌️😭.
+
+
  **Who**: Tech-savvy students lost on campus and faculty who need an easy way to share updates.
  
 **What** A campus schedule app that syncs your timetable, tracks class countdowns, pins build locations, and links instructor profiles.
